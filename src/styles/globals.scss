@@ -1,0 +1,18 @@
+@import 'colors';
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #000000;
+  color: #bdbdbd;
+  font-family: sans-serif;
+}
+
+h1 {
+  font-size: 4rem;
+  margin-top: 200px;
+  margin-left: 10%;
+  letter-spacing: 0.2rem;
+}
