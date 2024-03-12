@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import React, { useRef } from 'react';
 import { useGLTF, useTexture } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
+import config from '../../gatsby-config';
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -91,10 +92,12 @@ type GLTFResult = GLTF & {
 
 type ContextType = Record<string, React.ForwardRefExoticComponent<JSX.IntrinsicElements['mesh']>>;
 
-const Office = (props: JSX.IntrinsicElements['group']) => {
-  const { nodes, materials } = useGLTF('/models/scene.glb') as GLTFResult;
+const prefix = process.env.NODE_ENV === 'development' ? '' : config.pathPrefix;
 
-  const texture = useTexture('/textures/baked.jpg');
+const Office = (props: JSX.IntrinsicElements['group']) => {
+  const { nodes, materials } = useGLTF(prefix + '/models/scene.glb') as GLTFResult;
+
+  const texture = useTexture(prefix + '/textures/baked.jpg');
   texture.flipY = false;
   texture.colorSpace = THREE.SRGBColorSpace;
 
@@ -192,7 +195,7 @@ const Office = (props: JSX.IntrinsicElements['group']) => {
   );
 };
 
-useGLTF.preload('/models/scene.glb');
+useGLTF.preload(prefix + '/models/scene.glb');
 
 export default Office;
 
