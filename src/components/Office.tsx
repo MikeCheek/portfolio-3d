@@ -5,9 +5,9 @@ Command: npx gltfjsx@6.2.16 static/models/scene.glb -k -t
 
 import * as THREE from 'three';
 import React, { useRef } from 'react';
-import { useGLTF, useTexture } from '@react-three/drei';
+import { MeshReflectorMaterial, useCamera, useGLTF, useTexture } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
-import config from '../../gatsby-config';
+import { prefix } from '../utility/environment';
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -43,7 +43,6 @@ type GLTFResult = GLTF & {
     Circle005_2: THREE.Mesh;
     Circle005_3: THREE.Mesh;
     Circle005_4: THREE.Mesh;
-    rubber_duck_toy: THREE.Mesh;
     Desk: THREE.Mesh;
     OfficeChair_1: THREE.Mesh;
     OfficeChair_2: THREE.Mesh;
@@ -51,6 +50,8 @@ type GLTFResult = GLTF & {
     Plane_1: THREE.Mesh;
     Plane_2: THREE.Mesh;
     Plane_3: THREE.Mesh;
+    rubber_duck_toy: THREE.Mesh;
+    Glass: THREE.Mesh;
   };
   materials: {
     ['Material.028']: THREE.MeshStandardMaterial;
@@ -79,20 +80,19 @@ type GLTFResult = GLTF & {
     ScreenGlass: THREE.MeshStandardMaterial;
     Rubber: THREE.MeshStandardMaterial;
     DisplayGlass: THREE.MeshStandardMaterial;
-    rubber_duck_toy: THREE.MeshStandardMaterial;
-    Wall: THREE.MeshStandardMaterial;
+    Material: THREE.MeshStandardMaterial;
     Grey: THREE.MeshStandardMaterial;
     Black: THREE.MeshStandardMaterial;
     Chair: THREE.MeshStandardMaterial;
+    Glass: THREE.MeshStandardMaterial;
     Default: THREE.MeshStandardMaterial;
     Floor: THREE.MeshStandardMaterial;
+    rubber_duck_toy: THREE.MeshStandardMaterial;
   };
   animations: any; // GLTFAction[]
 };
 
 type ContextType = Record<string, React.ForwardRefExoticComponent<JSX.IntrinsicElements['mesh']>>;
-
-const prefix = process.env.NODE_ENV === 'development' ? '' : config.pathPrefix;
 
 const Office = (props: JSX.IntrinsicElements['group']) => {
   const { nodes, materials } = useGLTF(prefix + '/models/scene.glb') as GLTFResult;
@@ -103,7 +103,17 @@ const Office = (props: JSX.IntrinsicElements['group']) => {
 
   const textureMaterial = new THREE.MeshStandardMaterial({
     map: texture,
+    roughness: 1,
+    metalness: 0,
   });
+
+  const textureGlassMaterial = new THREE.MeshStandardMaterial({
+    map: texture,
+    transparent: true,
+    opacity: 0.4,
+  });
+
+  // material=\{[^}]+\}
 
   return (
     <group {...props} dispose={null}>
@@ -172,22 +182,45 @@ const Office = (props: JSX.IntrinsicElements['group']) => {
           <mesh name="Circle005_1" geometry={nodes.Circle005_1.geometry} material={textureMaterial} />
           <mesh name="Circle005_2" geometry={nodes.Circle005_2.geometry} material={textureMaterial} />
           <mesh name="Circle005_3" geometry={nodes.Circle005_3.geometry} material={textureMaterial} />
-          <mesh name="Circle005_4" geometry={nodes.Circle005_4.geometry} material={textureMaterial} />
+          <mesh name="Circle005_4" geometry={nodes.Circle005_4.geometry} material={textureGlassMaterial}>
+            <MeshReflectorMaterial
+              blur={[0, 0]} // Blur ground reflections (width, height), 0 skips blur
+              mixBlur={0.2} // How much blur mixes with surface roughness (default = 1)
+              mixStrength={0.4} // Strength of the reflections
+              mixContrast={1} // Contrast of the reflections
+              resolution={256} // Off-buffer resolution, lower=faster, higher=better quality, slower
+              mirror={1} // Mirror environment, 0 = texture colors, 1 = pick up env colors
+              depthScale={0} // Scale the depth factor (0 = no depth, default = 0)
+              minDepthThreshold={0.9} // Lower edge for the depthTexture interpolation (default = 0)
+              maxDepthThreshold={1} // Upper edge for the depthTexture interpolation (default = 0)
+              depthToBlurRatioBias={0.25} // Adds a bias factor to the depthTexture before calculating the blur amount [blurFactor = blurTexture * (depthTexture + bias)]. It accepts values between 0 and 1, default is 0.25. An amount > 0 of bias makes sure that the blurTexture is not too sharp because of the multiplication with the depthTexture
+              distortion={1} // Amount of distortion based on the distortionMap texture
+              reflectorOffset={0.2} // Offsets the virtual camera that projects the reflection. Useful when the reflective surface is some distance from the object's origin (default = 0)
+              transparent={true}
+              opacity={0.8}
+            />
+          </mesh>
         </group>
       </group>
-      <mesh
-        name="rubber_duck_toy"
-        geometry={nodes.rubber_duck_toy.geometry}
-        material={textureMaterial}
-        position={[-0.623, 0.717, -1.559]}
-        rotation={[0, 1.084, 0]}
-      />
       <mesh name="Desk" geometry={nodes.Desk.geometry} material={textureMaterial} position={[-0.618, 0, -1.677]} />
       <group name="OfficeChair" position={[-0.303, 0, -0.492]} rotation={[-Math.PI / 2, 0, 2.239]}>
         <mesh name="OfficeChair_1" geometry={nodes.OfficeChair_1.geometry} material={textureMaterial} />
         <mesh name="OfficeChair_2" geometry={nodes.OfficeChair_2.geometry} material={textureMaterial} />
         <mesh name="OfficeChair_3" geometry={nodes.OfficeChair_3.geometry} material={textureMaterial} />
       </group>
+      <mesh
+        name="rubber_duck_toy"
+        geometry={nodes.rubber_duck_toy.geometry}
+        material={textureMaterial}
+        position={[0, 0, -0.344]}
+      />
+      <mesh
+        name="Glass"
+        geometry={nodes.Glass.geometry}
+        material={textureGlassMaterial}
+        position={[-2.119, 1.346, -0.663]}
+        scale={[0.068, 0.324, 0.63]}
+      />
       <mesh name="Plane_1" geometry={nodes.Plane_1.geometry} material={textureMaterial} />
       <mesh name="Plane_2" geometry={nodes.Plane_2.geometry} material={textureMaterial} />
       <mesh name="Plane_3" geometry={nodes.Plane_3.geometry} material={textureMaterial} />

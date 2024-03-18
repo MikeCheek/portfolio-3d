@@ -14,6 +14,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const Experience = () => {
   const Office = lazy(() => import('./Office'));
+  const Book = lazy(() => import('./Book'));
 
   const sheet = useCurrentSheet();
   const scroll = useScroll();
@@ -34,14 +35,18 @@ const Experience = () => {
     <EditableCamera theatreKey="Camera" position={[1, 1, 1]}>
       {/* <OrbitControls /> */}
       {/* <Sky /> */}
-      <Environment preset="sunset" />
-      {/* <editable.directionalLight theatreKey="LightLeft" />
-      <editable.directionalLight theatreKey="LightRight" /> */}
+      {/* <Environment preset="sunset" /> */}
+      {/* <editable.directionalLight theatreKey="LightLeft" /> */}
+      {/* <editable.directionalLight theatreKey="LightRight" /> */}
       <Suspense fallback={null}>
         <group>
-          {/* <ContactShadows opacity={0.42} scale={10} blur={1} far={10} resolution={256} color="#ffffff" /> */}
           <editable.group theatreKey="Office">
+            <ContactShadows opacity={0.42} scale={10} blur={1} far={10} resolution={256} color="#000000" />
+            <editable.ambientLight intensity={0.1} theatreKey="ambient" />
+            <editable.directionalLight position={[-25, 8, 20]} intensity={3} theatreKey="sun" color="#ffd094" />
+            <editable.pointLight position={[-0.5, 1, -1.65]} intensity={2.5} theatreKey="lamp" color="#4b1f61" />
             <Office />
+            <Book position={[-0.5, 0.78, -1.5]} scale={0.3} rotation={[0, -Math.PI / 2, 0]} />
           </editable.group>
         </group>
       </Suspense>
